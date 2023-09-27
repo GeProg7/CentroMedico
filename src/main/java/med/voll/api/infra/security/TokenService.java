@@ -19,7 +19,7 @@ public class TokenService {
     @Value("${api.security.secret}")
     private String apiSecret;
 
-    public String generarToken(Usuario usuario) {
+    public String generarToken(Usuario usuario){
         try {
             Algorithm algorithm = Algorithm.HMAC256(apiSecret);
             return JWT.create()
@@ -29,33 +29,41 @@ public class TokenService {
                     .withExpiresAt(generarFechaExpiracion())
                     .sign(algorithm);
         } catch (JWTCreationException exception){
-            throw new RuntimeException();
+            throw  new RuntimeException("Error al generar el Token");
         }
     }
 
-    public String getSubject(String token) {
-        if (token == null) {
+    public  String getSubject(String token) {
+        if (token == null){
             throw new RuntimeException();
         }
         DecodedJWT verifier = null;
+
         try {
-            Algorithm algorithm = Algorithm.HMAC256(apiSecret); // validando firma
+            Algorithm algorithm = Algorithm.HMAC256(apiSecret);
             verifier = JWT.require(algorithm)
                     .withIssuer("voll med")
                     .build()
                     .verify(token);
             verifier.getSubject();
         } catch (JWTVerificationException exception) {
+            // Invalid signature/claims
             System.out.println(exception.toString());
         }
         if (verifier.getSubject() == null) {
-            throw new RuntimeException("Verifier invalido");
+            System.out.println("3 aqui bien");
+            throw new RuntimeException("verifier invalido");
+
         }
+        System.out.println("3 aqui bien");
         return verifier.getSubject();
+
     }
 
-    private Instant generarFechaExpiracion() {
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-05:00"));
+    private Instant generarFechaExpiracion(){
+        return  LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-05:00"));
     }
+
+
 
 }
